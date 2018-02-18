@@ -1,0 +1,107 @@
+*{
+  box-sizing: border-box;
+}
+
+.Chat{
+  height: calc(100vh - 250px);
+}
+
+header {
+  text-align: center;
+  background-color: #222;
+  padding: 20px;
+  color: white;
+  height: 60px;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+button{
+  background-color: #222;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  padding: 10px;
+}
+
+.input-group{
+  display: grid;
+  grid-gap: 5px;
+  grid-template-columns: auto auto;
+}
+
+.main-content{
+  display:  grid;
+  grid-template-columns: 1fr 2fr;
+  /* padding: 0 30px; */
+  height: calc(100vh - 250px);
+}
+
+.login-all{
+  height: 100%;
+  display: grid;
+  justify-items: center;
+  align-items: center;
+}
+.login{
+  display: grid;
+  justify-items: center;
+  align-items: center;
+  grid-gap: 20px;
+  border: 1px solid #333;
+  border-radius: 4px;
+  padding: 30px;
+  margin-bottom: 40px;
+}
+
+.users-box{
+  background-color: #999;
+  color: white;
+  font-weight: bold;
+}
+
+.users-list{
+  border: 1px solid white;
+  border-radius: 5px;
+  padding: 5px;
+  margin: 10px;
+  display: grid;
+  justify-items: start;
+}
+
+.chat-area{
+  background-color: #CCC;
+  display: grid;
+  grid-gap: 10px;
+  grid-template-rows: 1fr 40px;
+  padding: 10px;
+  height: 100%;
+}
+.user{
+  font-size: 18px;
+}
+
+.message-area{
+  display: flex;
+  flex-direction: column-reverse;
+  border: 1px solid grey;
+  margin-bottom: 10px;
+  padding: 5px;
+  background-color: #EEE; 
+  overflow: auto;
+  overflow-x: hidden;
+  overflow-wrap: break-word;
+  max-height: 80vh; 
+}
+.message{
+  margin-top: 3px;
+  height: fit-content;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 60px 80px 1fr;
+}
+
+.input-box{
+  display: grid;
+  grid-template-columns: 1fr auto;
+}

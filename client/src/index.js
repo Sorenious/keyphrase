@@ -6,7 +6,7 @@ import "./index.css";
 import { SocketProvider } from 'socket.io-react';
 import io from 'socket.io-client';
 
-const socket = io.connect('http://localhost:3001');
+const socket = io.connect('process.env.PORT || http://localhost:3001');
 
 ReactDOM.render(
 	<SocketProvider socket={socket}>

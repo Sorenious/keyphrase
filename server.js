@@ -69,6 +69,8 @@ io.on('connection', function(socket){
     })
 });
 
+setInterval(() => io.emit('time', new Date().toTimeString()), 1000);
+
 // Start the API server
 server.listen(PORT, function() {
   console.log(`🌎  ==> API Server now listening on PORT ${PORT}!`);

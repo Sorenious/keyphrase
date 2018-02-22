@@ -1,4 +1,5 @@
 import React from "react";
+import "./Search.css";
 
 export const Search = props =>
   <form>
@@ -12,6 +13,7 @@ export const Search = props =>
         className="form-control"
         placeholder="Search for a Gif"
         id="search"
+        style={{backgroundColor: props.colour}}
       />
       <button onClick={props.handleFormSubmit} className="btn btn-primary">
         Search

@@ -3,7 +3,7 @@ const boardsController = require("../../controllers/boardsController");
 
 // Matches with "/api/boards"
 router.route("/")
-  .get(boardsController.findAll)
+  .get(boardsController.findOne)
   .post(boardsController.create);
 
 // Matches with "/api/boards/:id"

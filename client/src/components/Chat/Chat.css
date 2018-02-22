@@ -34,7 +34,7 @@ button{
   display:  grid;
   grid-template-columns: 1fr 2fr;
   /* padding: 0 30px; */
-  height: calc(100vh - 250px);
+  height: calc(100vh - 175px);
 }
 
 .login-all{

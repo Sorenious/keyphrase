@@ -5,6 +5,7 @@ import CoverCard from "../../components/CoverCard";
 import Wrapper from "../../components/Wrapper";
 import Board from "../../components/Board";
 import Chat from "../../components/Chat";
+import { socketConnect } from 'socket.io-react';
 import { Search, Results } from "../../components/Search";
 import API from "../../utils/API";
 
@@ -28,20 +29,34 @@ let redStart = [
     ]
 
 class GameBoard extends Component {
-
-  // state = {
-  //   friends: friends
-  // }
-  state = {
-    search: "",
-    picResults: [],
-    colourKey: [],
-    cover: ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
-    start: "#AAAAAA"
-  };
+  constructor(props){
+    super(props);
+    this.state = {
+      search: "",
+      picResults: [],
+      colourKey: [],
+      cover: ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+      start: "#AAAAAA"
+    };
+  }
 
   componentDidMount() {
     this.loadBoards();
+    let { socket } = this.props;
+
+    socket.on('revealed', data=>{
+      let newCover = this.state.cover;
+      console.log(this.state.cover);
+      for (var x=0; x<newCover.length; x++) {
+        if (this.state.picResults[x].id === data.id) {
+          newCover[x] = this.state.colourKey[x];
+        }
+      }
+      console.log("Click Click Click", newCover)
+      this.setState({
+        cover: newCover
+      })
+    })
   }
 
   shuffleArray = (array, name) => {
@@ -58,21 +73,6 @@ class GameBoard extends Component {
     // });
   }
 
-  removeFriend = (id) => {
-    console.log("Here!");
-    let newResults = this.state.picResults.filter(result => {
-      if (result.id === id) {
-        return false;
-      }
-      return true;
-    });
-
-    this.setState({
-      picResults: newResults
-    })
-    console.log(this.state.picResults);
-  }
-
   loadBoards = () => {
     API.getBoards()
       .then(res => {
@@ -83,26 +83,27 @@ class GameBoard extends Component {
   };
 
   revealColour = (id) => {
-    let newCover = this.state.cover;
-    console.log(this.state.cover);
-    for (var x=0; x<newCover.length; x++) {
-      if (this.state.picResults[x].id === id) {
-        newCover[x] = this.state.colourKey[x];
-      }
-    }
-    console.log("Click Click Click", newCover)
-    this.setState({
-      cover: newCover
-    })
+    this.props.socket.emit('reveal', id)
+    // let newCover = this.state.cover;
+    // console.log(this.state.cover);
+    // for (var x=0; x<newCover.length; x++) {
+    //   if (this.state.picResults[x].id === id) {
+    //     newCover[x] = this.state.colourKey[x];
+    //   }
+    // }
+    // console.log("Click Click Click", newCover)
+    // this.setState({
+    //   cover: newCover
+    // })
   }
 
-  searchGiphy = (query, offset) => {
-    API.search(query, offset)
-      .then(res => {
-        var pics = this.shuffleArray(res.data.data, "picResults")
-      })
-      .catch(err => console.log(err));
-  };
+  // searchGiphy = (query, offset) => {
+  //   API.search(query, offset)
+  //     .then(res => {
+  //       var pics = this.shuffleArray(res.data.data, "picResults")
+  //     })
+  //     .catch(err => console.log(err));
+  // };
 
   handleInputChange = event => {
     const name = event.target.name;
@@ -126,7 +127,7 @@ class GameBoard extends Component {
 
     API.search(this.state.search, offset)
       .then(picData => {
-        var pics = this.shuffleArray(picData.data.data, "picResults")
+        pics = this.shuffleArray(picData.data.data, "picResults")
         API.getColours()
         .then(colourData => {
           let index = Math.floor((Math.random() * 2));
@@ -194,4 +195,4 @@ class GameBoard extends Component {
 }
 
 
-export default GameBoard;
+export default socketConnect(GameBoard);

@@ -5,6 +5,7 @@ import CoverCard from "../../components/CoverCard";
 import Wrapper from "../../components/Wrapper";
 import Board from "../../components/Board";
 import Chat from "../../components/Chat";
+import { socketConnect } from 'socket.io-react';
 import API from "../../utils/API";
 
 let redStart = [ 
@@ -46,20 +47,34 @@ let redStart = [
 //     ]
 
 class ClueGiver extends Component {
-
-  // state = {
-  //   friends: friends
-  // }
-  state = {
-    search: "",
-    picResults: [],
-    colourKey: [],
-    cover: [],
-    start: "#AAAAAA"
-  };
+  constructor(props){
+    super(props);
+    this.state = {
+      search: "",
+      picResults: [],
+      colourKey: [],
+      cover: ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+      start: "#AAAAAA"
+    };
+  }
 
   componentDidMount() {
     this.loadBoards();
+    let { socket } = this.props;
+
+    socket.on('revealed', data=>{
+      let newCover = this.state.cover;
+      console.log(this.state.cover);
+      for (var x=0; x<newCover.length; x++) {
+        if (this.state.picResults[x].id === data.id) {
+          newCover[x] = this.state.colourKey[x];
+        }
+      }
+      console.log("Click Click Click", newCover)
+      this.setState({
+        cover: newCover
+      })
+    })
   }
 
   shuffleArray = (array, name) => {
@@ -74,21 +89,6 @@ class ClueGiver extends Component {
     // this.setState({
     //   [name]: randResults
     // });
-  }
-
-  removeFriend = (id) => {
-    console.log("Here!");
-    let newResults = this.state.picResults.filter(result => {
-      if (result.id === id) {
-        return false;
-      }
-      return true;
-    });
-
-    this.setState({
-      picResults: newResults
-    })
-    console.log(this.state.picResults);
   }
 
   loadBoards = () => {
@@ -113,13 +113,13 @@ class ClueGiver extends Component {
     })
   }
 
-  searchGiphy = (query, offset) => {
-    API.search(query, offset)
-      .then(res => {
-        var pics = this.shuffleArray(res.data.data, "picResults")
-      })
-      .catch(err => console.log(err));
-  };
+  // searchGiphy = (query, offset) => {
+  //   API.search(query, offset)
+  //     .then(res => {
+  //       var pics = this.shuffleArray(res.data.data, "picResults")
+  //     })
+  //     .catch(err => console.log(err));
+  // };
 
   createBoard = () => {
     let board = [];
@@ -156,4 +156,4 @@ class ClueGiver extends Component {
 }
 
 
-export default ClueGiver;
+export default socketConnect(ClueGiver);

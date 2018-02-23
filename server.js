@@ -67,6 +67,10 @@ io.on('connection', function(socket){
         io.sockets.emit('update users', {users: users})
         socket.emit('update users', {users: users})
     })
+
+    socket.on('reveal', function(data) {
+        io.sockets.emit('revealed', {id: data})
+    })
 });
 
 setInterval(() => io.emit('time', new Date().toTimeString()), 1000);

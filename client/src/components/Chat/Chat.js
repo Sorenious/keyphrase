@@ -1,7 +1,11 @@
 import React, { Component } from 'react';
 import { socketConnect } from 'socket.io-react';
-
+import Ding from "./zapsplat_multimedia_game_star_win_gain_x1_12387.mp3";
 import './Chat.css';
+
+let audioElement = document.createElement("audio");
+    audioElement.setAttribute("src", Ding);
+    audioElement.volume = 0.2;
 
 class Chat extends Component {
   constructor(props){
@@ -44,6 +48,7 @@ class Chat extends Component {
     })
 
     socket.on('message', data=>{
+      audioElement.play();
       this.setState({ messages: data });
     })
   }

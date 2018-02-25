@@ -1,12 +1,12 @@
 import React, { Component } from "react";
-import FriendCard from "../../components/FriendCard";
-import CoverCard from "../../components/CoverCard";
-import Wrapper from "../../components/Wrapper";
-import Board from "../../components/Board";
-import Chat from "../../components/Chat";
+import FriendCard from "../../../components/FriendCard";
+import CoverCard from "../../../components/CoverCard";
+import Wrapper from "../../../components/Wrapper";
+import Board from "../../../components/Board";
+import Chat from "../../../components/Chat";
 import { socketConnect } from 'socket.io-react';
-import { Search } from "../../components/Search";
-import API from "../../utils/API";
+import { Search } from "../../../components/Search";
+import API from "../../../utils/API";
 
 class GameBoard extends Component {
   constructor(props){
@@ -15,14 +15,14 @@ class GameBoard extends Component {
       search: "",
       picResults: [],
       colourKey: [],
-      cover: ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+      cover: [],
       start: "#AAAAAA"
     };
   }
 
   componentDidMount() {
     console.log(this.props, "Did mount");
-    this.loadBoard(this.props.match.params.id);
+    this.loadBoard(this.props.id);
     let { socket } = this.props;
 
     socket.on('revealed', data=>{
@@ -37,6 +37,9 @@ class GameBoard extends Component {
       this.setState({
         cover: newCover
       })
+
+      API.updateBoard(this.props.id, {cover: this.state.cover})
+            .catch(err => console.log(err));
     })
   }
 
@@ -64,7 +67,7 @@ class GameBoard extends Component {
   };
 
   revealColour = (id) => {
-    this.props.socket.emit('reveal', id)
+    this.props.socket.emit('reveal', id);
     // let newCover = this.state.cover;
     // console.log(this.state.cover);
     // for (var x=0; x<newCover.length; x++) {
@@ -124,11 +127,12 @@ class GameBoard extends Component {
           }
           key = this.shuffleArray(key, "colourKey");
           console.log(pics, key, this.state.start);
-          API.saveBoard({
+          API.updateBoard(this.props.id, {
             layout: pics,
-            colourScheme: key
+            colourScheme: key,
+            cover: this.state.cover
           })
-            .then(res => this.loadBoard())
+            .then(res => this.loadBoard(this.props.id))
             .catch(err => console.log(err));
         })
         .catch(err => console.log(err));

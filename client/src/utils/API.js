@@ -16,6 +16,10 @@ export default {
   getBoard: function(id) {
     return axios.get("/api/boards/" + id);
   },
+  // Updates the board with the given id
+  updateBoard: function(id, updateData) {
+    return axios.put("/api/boards/" + id, updateData);
+  },
   // Deletes the board with the given id
   deleteBoard: function(id) {
     return axios.delete("/api/boards/" + id);

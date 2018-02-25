@@ -4,7 +4,7 @@ import "./Search.css";
 export const Search = props =>
   <form>
     <div className="form-group">
-      <label htmlFor="search">Search:</label>
+      <label htmlFor="search">Choose board theme:</label>
       <input
         onChange={props.handleInputChange}
         value={props.search}
@@ -15,8 +15,8 @@ export const Search = props =>
         id="search"
         style={{backgroundColor: props.colour}}
       />
-      <button onClick={props.handleFormSubmit} className="btn btn-primary">
-        Search
-      </button>
+        <button onClick={props.handleFormSubmit} className="btn btn-primary">
+          Create Game
+        </button>
     </div>
   </form>;

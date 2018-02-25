@@ -1,12 +1,12 @@
 import React, { Component } from "react";
-import FriendCard from "../../components/FriendCard";
-import ColourCard from "../../components/ColourCard";
-import CoverCard from "../../components/CoverCard";
-import Wrapper from "../../components/Wrapper";
-import Board from "../../components/Board";
-import Chat from "../../components/Chat";
+import FriendCard from "../../../components/FriendCard";
+import ColourCard from "../../../components/ColourCard";
+import CoverCard from "../../../components/CoverCard";
+import Wrapper from "../../../components/Wrapper";
+import Board from "../../../components/Board";
+import Chat from "../../../components/Chat";
 import { socketConnect } from 'socket.io-react';
-import API from "../../utils/API";
+import API from "../../../utils/API";
 
 class ClueGiver extends Component {
   constructor(props){
@@ -15,13 +15,13 @@ class ClueGiver extends Component {
       search: "",
       picResults: [],
       colourKey: [],
-      cover: ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+      cover: [],
       start: "#AAAAAA"
     };
   }
 
   componentDidMount() {
-    this.loadBoards();
+    this.loadBoard(this.props.id);
     let { socket } = this.props;
 
     socket.on('revealed', data=>{
@@ -53,11 +53,11 @@ class ClueGiver extends Component {
     // });
   }
 
-  loadBoards = () => {
-    API.getBoards()
+  loadBoard = (id) => {
+    API.getBoard(id)
       .then(res => {
         console.log(res, "Board is here");
-        this.setState({ picResults: res.data[res.data.length-1].layout, colourKey: res.data[res.data.length-1].colourScheme })
+        this.setState({ picResults: res.data.layout, colourKey: res.data.colourScheme, cover: res.data.cover })
       })
       .catch(err => console.log(err));
   };

@@ -73,7 +73,7 @@ class Chat extends Component {
     
     const displayUsers = users.map((user, i)=><div className='user' key={i} style={{color: user.team}}>{user.name}</div>)
 
-    let displayMsg = messages.map((msg, i)=><div className='message' key={i} style={{color: msg.tm}}><span>{msg.timestamp}→</span> <span>{msg.name}:</span><span>{msg.msg}</span></div>)
+    let displayMsg = messages.map((msg, i)=><div className='message' key={i} style={{color: msg.tm}}><span>{msg.timestamp}→</span><span>{msg.name}:</span><span>{msg.msg}</span></div>)
     displayMsg.reverse();
 
     return (

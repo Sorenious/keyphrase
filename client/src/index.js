@@ -1,5 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import App from "./App";
 import "./index.css";
 
@@ -12,6 +13,8 @@ var socket = io();
 
 ReactDOM.render(
 	<SocketProvider socket={socket}>
-		<App />
+		<MuiThemeProvider>
+			<App />
+		</MuiThemeProvider>
 	</SocketProvider>
 , document.getElementById("root"));

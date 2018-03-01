@@ -108,7 +108,8 @@ class Introduction extends Component {
           API.saveBoard({
             layout: pics,
             colourScheme: key,
-            cover: this.state.cover
+            cover: this.state.cover,
+            start: this.state.start
           })
             .then(res => {
               console.log(res.data._id, "Board created")

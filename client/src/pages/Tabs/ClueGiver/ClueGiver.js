@@ -37,6 +37,15 @@ class ClueGiver extends Component {
         cover: newCover
       })
     })
+
+    socket.on('newGame', data=>{
+      API.getBoard(data.id)
+      .then(res => {
+        console.log(res, "Board is here");
+        this.setState({ picResults: res.data.layout, colourKey: res.data.colourScheme, cover: res.data.cover, start: res.data.start })
+      })
+      .catch(err => console.log(err));
+    })
   }
 
   shuffleArray = (array, name) => {
@@ -63,16 +72,16 @@ class ClueGiver extends Component {
   };
 
   revealColour = (id) => {
-    let newCover = this.state.cover;
-    for (var x=0; x<newCover.length; x++) {
-      if (this.state.picResults[x].id === id) {
-        newCover[x] = this.state.colourKey[x];
-      }
-    }
+    // let newCover = this.state.cover;
+    // for (var x=0; x<newCover.length; x++) {
+    //   if (this.state.picResults[x].id === id) {
+    //     newCover[x] = this.state.colourKey[x];
+    //   }
+    // }
 
-    this.setState({
-      cover: newCover
-    })
+    // this.setState({
+    //   cover: newCover
+    // })
   }
 
   // searchGiphy = (query, offset) => {

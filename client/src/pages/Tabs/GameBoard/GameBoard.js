@@ -41,6 +41,15 @@ class GameBoard extends Component {
       API.updateBoard(this.props.id, {cover: this.state.cover})
             .catch(err => console.log(err));
     })
+
+    socket.on('newGame', data=>{
+      API.getBoard(data.id)
+      .then(res => {
+        console.log(res, "Board is here");
+        this.setState({ picResults: res.data.layout, colourKey: res.data.colourScheme, cover: res.data.cover, start: res.data.start })
+      })
+      .catch(err => console.log(err));
+    })
   }
 
   shuffleArray = (array, name) => {
@@ -130,9 +139,10 @@ class GameBoard extends Component {
           API.updateBoard(this.props.id, {
             layout: pics,
             colourScheme: key,
-            cover: this.state.cover
+            cover: this.state.cover,
+            start: this.state.start
           })
-            .then(res => this.loadBoard(this.props.id))
+            .then(res => this.props.socket.emit('update', this.props.id))
             .catch(err => console.log(err));
         })
         .catch(err => console.log(err));

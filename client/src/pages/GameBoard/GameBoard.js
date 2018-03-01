@@ -58,7 +58,7 @@ class GameBoard extends Component {
     API.getBoard(id)
       .then(res => {
         console.log(res, "Board is here");
-        this.setState({ picResults: res.data.layout, colourKey: res.data.colourScheme, cover: res.data.cover })
+        this.setState({ picResults: res.data.layout, colourKey: res.data.colourScheme, cover: res.data.cover, start: res.data.start  })
       })
       .catch(err => console.log(err));
   };
@@ -171,7 +171,7 @@ class GameBoard extends Component {
             handleFormSubmit={this.handleFormSubmit}
             handleInputChange={this.handleInputChange}
         />
-        <Chat />
+        <Chat id={this.props.id}/>
       </div>
     </Wrapper>
   }

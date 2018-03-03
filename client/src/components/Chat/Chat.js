@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 import { socketConnect } from 'socket.io-react';
+import Volume from "../../components/Volume";
 import Ding from "./zapsplat_multimedia_game_star_win_gain_x1_12387.mp3";
 import './Chat.css';
 
 let audioElement = document.createElement("audio");
     audioElement.setAttribute("src", Ding);
-    audioElement.volume = 0.2;
+    
 
 class Chat extends Component {
   constructor(props){
@@ -14,6 +15,7 @@ class Chat extends Component {
       loggedIn: false,
       name: '',
       team: '',
+      slider: 0.5,
       message: '',
       users: [
         {name: 'Lloyd'},
@@ -73,6 +75,11 @@ class Chat extends Component {
     this.setState({ [e.target.name]: e.target.value });
   }
 
+  handleSlider = (event, value) => {
+    this.setState({slider: value});
+    audioElement.volume = this.state.slider;
+  };
+
   render() {
     let { users, messages} = this.state;
     
@@ -97,6 +104,10 @@ class Chat extends Component {
               <div className="message-area">
                 {displayMsg}
               </div>
+            <Volume 
+              value={this.state.slider}
+              handleSlider={this.handleSlider}
+            />
               <form onSubmit={e=>this.sendMsg(e)} className="input-box">
                 <input onChange={e=>this.handleInput(e)} value={this.state.message} name='message' type="text"/>
                 <button type='submit'>Send</button>
@@ -109,9 +120,9 @@ class Chat extends Component {
               <div className="input-group">
                 <label htmlFor="">Name</label>
                 <input onChange={e=>this.handleInput(e)} value={this.state.name} type="text" name='name' className="username"/>
-                <label htmlFor="">Team 1</label>
+                <label htmlFor="">Red Team</label>
                 <input onClick={e=>this.handleInput(e)} type="radio" name="team" value="#CC0000" />
-                <label htmlFor="">Team 2</label>
+                <label htmlFor="">Blue Team</label>
                 <input onClick={e=>this.handleInput(e)} type="radio" name="team" value="#0000CC" />
               </div>
               <button type='submit' className="login-button">Login</button>

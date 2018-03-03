@@ -156,7 +156,7 @@ class GameBoard extends Component {
       board.push(
                 <FriendCard
                   style={this.state.style}
-                  image={this.state.picResults[x].images.fixed_width_still.url}
+                  image={this.state.picResults[x].images.fixed_width.url}
                   revealFunction={this.revealColour}
                   id={this.state.picResults[x].id}
                   key={this.state.picResults[x].id}

@@ -34,7 +34,7 @@ button{
   display:  grid;
   grid-template-columns: 1fr 2fr;
   /* padding: 0 30px; */
-  height: calc(100vh - 175px);
+  height: calc(100vh - 275px);
 }
 
 .login-all{
@@ -88,8 +88,8 @@ button{
   margin-bottom: 10px;
   padding: 5px;
   background-color: #EEE; 
-  overflow: auto;
-  overflow-x: hidden;
+  overflow: scroll;
+  overflow-x: auto;
   overflow-wrap: break-word;
   max-height: 80vh; 
 }

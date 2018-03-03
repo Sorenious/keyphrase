@@ -27,53 +27,81 @@ mongoose.connect(
   }
 );
 
-let connections = []
-let users = []
-let messages = []
+var state = {};
+
+// let connections = []
+// let users = []
+// let messages = []
+
+// {
+//     "room`1234" : {
+//         connection: [],
+//         users: [],
+//         messages:[]
+//     }
+// }
 
 io.on('connection', function(socket){
-    connections.push(socket);
-    console.log(`${socket.id} connected: ${connections.length} active connections.`)
+    console.log(socket.handshake['query']['r_var']);
+    var room = socket.handshake['query']['r_var'];
+
+    socket.join(room);
+
+    if (!state[room]) {
+        state[room] = {
+        connections: [],
+        users: [],
+        messages:[]
+        }
+    }
+
+    state[room].connections.push(socket);
+    console.log(`${socket.id} connected: ${state[room].connections.length} active connections.`)
+    // state[room].users.pu
+
+    console.log('user joined room #'+room);
 
     socket.on('disconnect', function(data){
-        connections.splice(connections.indexOf(socket),1);
-        for (var i = 0; i < users.length; i++) {
-            if (users[i].id == socket.id){
-                users.splice(i, 1);
+        state[room].connections.splice(state[room].connections.indexOf(socket),1);
+        for (var i = 0; i < state[room].users.length; i++) {
+            if (state[room].users[i].id == socket.id){
+                state[room].users.splice(i, 1);
                 break;
             }
         }
-        console.log(`Connection disconnected: ${connections.length} active connections.`)
-        io.sockets.emit('update users', {users: users});
-        if (!connections.length){
-            messages=[];
+        console.log(`Connection disconnected: ${state[room].connections.length} active connections.`)
+        io.sockets.to(room).emit('update users', {users: state[room].users});
+        if (!state[room].connections.length){
+            state[room].messages=[];
+            state[room] = undefined;
+        socket.leave(room)
         }          
     })
 
     socket.on('send message', function(data) {
         let ts = new Date()
         data.timestamp = `${ts.getHours()}:${ts.getMinutes()}`;
-        messages.push(data)
-        io.sockets.emit('message', messages)
+        state[room].messages.push(data)
+        io.sockets.to(room).emit('message', state[room].messages)
     })
     socket.on('login', function (name, team) {
         console.log(name, team);
-        users.push({
+        state[room].users.push({
             name: name,
             team: team,
             id: socket.id
         })
-        socket.emit('logged in', {loggedIn: true, currentUser: name, history: messages})
-        io.sockets.emit('update users', {users: users})
-        socket.emit('update users', {users: users})
+        socket.emit('logged in', {loggedIn: true, currentUser: name, history: state[room].messages})
+        io.sockets.to(room).emit('update users', {users: state[room].users})
+        socket.emit('update users', {users: state[room].users})
     })
 
     socket.on('reveal', function(data) {
-        io.sockets.emit('revealed', {id: data})
+        io.sockets.to(room).emit('revealed', {id: data})
     })
 
     socket.on('update', function(data) {
-        io.sockets.emit('newGame', {id: data})
+        io.sockets.to(room).emit('newGame', {id: data})
     })
 });
 

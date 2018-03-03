@@ -16,7 +16,7 @@ class GameBoard extends Component {
       picResults: [],
       colourKey: [],
       cover: [],
-      start: "#AAAAAA"
+      start: ""
     };
   }
 
@@ -70,7 +70,7 @@ class GameBoard extends Component {
     API.getBoard(id)
       .then(res => {
         console.log(res, "Board is here");
-        this.setState({ picResults: res.data.layout, colourKey: res.data.colourScheme, cover: res.data.cover })
+        this.setState({ picResults: res.data.layout, colourKey: res.data.colourScheme, cover: res.data.cover, start: res.data.start })
       })
       .catch(err => console.log(err));
   };
@@ -172,7 +172,7 @@ class GameBoard extends Component {
   }
 
   render() {
-    return <Wrapper>
+    return <Wrapper colour={this.state.start}>
       <Board>
         {
           this.createBoard()

@@ -12,7 +12,7 @@ class Introduction extends Component {
       picResults: [],
       colourKey: [],
       cover: ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
-      start: "#AAAAAA"
+      start: ""
     };
   }
 
@@ -99,7 +99,7 @@ class Introduction extends Component {
           </p>
           <h4>TAKING TURNS</h4>
           <p>
-            <b>Teams take turns</b>, beginning with the starting team. (The starting team is indicated by the lights on the sides of the key card.) On your team's turn, the spymaster gives <b>one clue</b>, and the field operatives may make <b>multiple guesses</b>.
+            <b>Teams take turns</b>, beginning with the starting team. (The starting team is indicated by the background colour of the game page.) On your team's turn, the spymaster gives <b>one clue</b>, and the field operatives may make <b>multiple guesses</b>.
           </p>
           <h4>GIVING THE CLUE</h4>
           <p>

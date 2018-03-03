@@ -3,7 +3,7 @@ import "./Search.css";
 
 export const Search = props =>
   <form>
-    <div className="form-group">
+    <div className="form-group" id="search">
       <label htmlFor="search">Choose board theme:</label>
       <input
         onChange={props.handleInputChange}
@@ -11,9 +11,7 @@ export const Search = props =>
         name="search"
         type="text"
         className="form-control"
-        placeholder="Search for a Gif"
-        id="search"
-        style={{backgroundColor: props.colour}}
+        placeholder="Choose a theme for your board"
       />
         <button onClick={props.handleFormSubmit} className="btn btn-primary">
           Create Game

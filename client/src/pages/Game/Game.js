@@ -44,10 +44,10 @@ const GameTabs = props => {
 
   return <SocketProvider socket={socket}>
     <Tabs>
-      <Tab label="Game Board" style={styles.starter} >
+      <Tab label="Game Board" >
         <GameBoard id={props.match.params.id} />
       </Tab>
-      <Tab label="Clue Board (No Peeking!)" style={styles.starter} >
+      <Tab label="Clue Board (No Peeking!)" >
         <ClueGiver id={props.match.params.id} />
       </Tab>
     </Tabs>

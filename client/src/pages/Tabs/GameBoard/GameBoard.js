@@ -157,11 +157,11 @@ class GameBoard extends Component {
             index = Math.floor((Math.random() * 2) + 2);
           }
           key = colourData.data[index].start;
-          if (index === 0) {
+          if (index === 0 || index === 2) {
             this.setState({
               start: "#CC0000"
             })
-          } else if (index === 1) {
+          } else if (index === 1 || index === 3) {
             this.setState({
               start: "#0000CC"
             })

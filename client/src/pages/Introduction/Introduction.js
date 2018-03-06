@@ -12,7 +12,8 @@ class Introduction extends Component {
       picResults: [],
       colourKey: [],
       cover: ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
-      start: ""
+      start: "",
+      size: ""
     };
   }
 
@@ -34,32 +35,47 @@ class Introduction extends Component {
     // });
   }
 
-  handleInputChange = event => {
-    const name = event.target.name;
-    const value = event.target.value;
-    this.setState({
-      [name]: value
-    });
-  };
+  // handleInputChange = event => {
+  //   const name = event.target.name;
+  //   const value = event.target.value;
+  //   this.setState({
+  //     [name]: value
+  //   });
+  // };
 
   // When the form is submitted, setup the game board using the search criteria
-  handleFormSubmit = event => {
+  handleFormSubmit = (event, submission) => {
     event.preventDefault();
+    console.log(submission, "form submit");
     let pics = [];
     let key = [];
+    let overlay = []; // cover array
+
+    for (var i = 0; i < parseInt(submission.difficulty); i++) {
+      overlay.push("");
+    }
     this.setState({
-      cover: ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""]
+      cover: overlay
     })
     let offset = Math.floor(Math.random() * (98 + 1));
     offset = offset + "&rating=G";
+    let limit = submission.difficulty + "&offset="
     //this.searchGiphy(this.state.search, offset);
 
-    API.search(this.state.search, offset)
+    API.search(submission.search, offset, limit)
       .then(picData => {
         pics = this.shuffleArray(picData.data.data, "picResults")
         API.getColours()
         .then(colourData => {
-          let index = Math.floor((Math.random() * 2));
+          let index;
+          let width;
+          if (submission.difficulty === "16") {
+            width = "80%";
+            index = Math.floor((Math.random() * 2));
+          } else if (submission.difficulty === "25") {
+            width = "100%";
+            index = Math.floor((Math.random() * 2) + 2);
+          }
           key = colourData.data[index].start;
           if (index === 0) {
             this.setState({
@@ -76,7 +92,8 @@ class Introduction extends Component {
             layout: pics,
             colourScheme: key,
             cover: this.state.cover,
-            start: this.state.start
+            start: this.state.start,
+            size: width
           })
             .then(res => {
               console.log(res.data._id, "Board created")

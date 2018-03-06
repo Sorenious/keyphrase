@@ -10,8 +10,8 @@ const io = socket_io(server)
 const PORT = process.env.PORT || 3001;
 
 // Configure body parser for AJAX requests
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+app.use(bodyParser.json({limit: '50mb'}));
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 // Serve up static assets
 app.use(express.static("client/build"));
 // Add routes, both API and view

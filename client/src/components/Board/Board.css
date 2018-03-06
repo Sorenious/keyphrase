@@ -5,6 +5,13 @@
   flex-flow: row wrap;
   justify-content: space-around;
   align-content: flex-start;
-  overflow: auto;
-  width: 750px;
+  overflow: auto;  
+}
+
+.board4 {
+  width: 80%;
+}
+
+.board5 {
+  width: 100%;
 }

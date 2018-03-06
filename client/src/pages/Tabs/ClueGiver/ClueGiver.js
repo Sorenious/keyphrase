@@ -5,7 +5,11 @@ import CoverCard from "../../../components/CoverCard";
 import Wrapper from "../../../components/Wrapper";
 import Board from "../../../components/Board";
 import Chat from "../../../components/Chat";
+import { Col, Row, Container } from "../../../components/Grid";
 import { socketConnect } from 'socket.io-react';
+import Checkbox from 'material-ui/Checkbox';
+import Visibility from 'material-ui/svg-icons/action/visibility';
+import VisibilityOff from 'material-ui/svg-icons/action/visibility-off';
 import API from "../../../utils/API";
 
 class ClueGiver extends Component {
@@ -16,7 +20,9 @@ class ClueGiver extends Component {
       picResults: [],
       colourKey: [],
       cover: [],
-      start: "#AAAAAA"
+      start: "",
+      size: "",
+      animate: false
     };
   }
 
@@ -42,7 +48,7 @@ class ClueGiver extends Component {
       API.getBoard(data.id)
       .then(res => {
         console.log(res, "Board is here");
-        this.setState({ picResults: res.data.layout, colourKey: res.data.colourScheme, cover: res.data.cover, start: res.data.start })
+        this.setState({ picResults: res.data.layout, colourKey: res.data.colourScheme, cover: res.data.cover, start: res.data.start, size: res.data.size })
       })
       .catch(err => console.log(err));
     })
@@ -62,11 +68,20 @@ class ClueGiver extends Component {
     // });
   }
 
+  updateCheck() {
+    console.log(this.state.animate, "Animated state");
+    this.setState((oldState) => {
+      return {
+        animate: !oldState.animate,
+      };
+    });
+  }
+
   loadBoard = (id) => {
     API.getBoard(id)
       .then(res => {
         console.log(res, "Board is here");
-        this.setState({ picResults: res.data.layout, colourKey: res.data.colourScheme, cover: res.data.cover, start: res.data.start })
+        this.setState({ picResults: res.data.layout, colourKey: res.data.colourScheme, cover: res.data.cover, start: res.data.start, size: res.data.size })
       })
       .catch(err => console.log(err));
   };
@@ -93,40 +108,75 @@ class ClueGiver extends Component {
   // };
 
   createBoard = () => {
-    let board = [];
-    for (let x = 0; x < this.state.picResults.length; x++) {
-      board.push(
-              <ColourCard
-                colour={this.state.colourKey[x]}
-                key={this.state.picResults[x].id}
-              >
-                <FriendCard
-                  style={this.state.style}
-                  image={this.state.picResults[x].images.fixed_width_still.url}
-                  revealFunction={this.revealColour}
-                  id={this.state.picResults[x].id}
-                  key={this.state.picResults[x].id}
-                >
-                  <CoverCard 
-                    colour={this.state.cover[x]}
-                    key={this.state.picResults[x].id} 
-                  />
-                </FriendCard>
-              </ColourCard>)
-          }
+    let board = [];if (this.state.animate) {
+      for (let x = 0; x < this.state.picResults.length; x++) {
+        board.push(
+          <ColourCard
+            colour={this.state.colourKey[x]}
+            key={this.state.picResults[x].id}
+          >
+            <FriendCard
+              style={this.state.style}
+              image={this.state.picResults[x].images.fixed_width.url}
+              revealFunction={this.revealColour}
+              id={this.state.picResults[x].id}
+              key={this.state.picResults[x].id}
+            >
+              <CoverCard 
+                colour={this.state.cover[x]}
+                key={this.state.picResults[x].id} 
+              />
+            </FriendCard>
+          </ColourCard>
+        )
+      }
+    } else {
+      for (let x = 0; x < this.state.picResults.length; x++) {
+        board.push(
+          <ColourCard
+            colour={this.state.colourKey[x]}
+            key={this.state.picResults[x].id}
+          >
+            <FriendCard
+              style={this.state.style}
+              image={this.state.picResults[x].images.fixed_width_still.url}
+              revealFunction={this.revealColour}
+              id={this.state.picResults[x].id}
+              key={this.state.picResults[x].id}
+            >
+              <CoverCard 
+                colour={this.state.cover[x]}
+                key={this.state.picResults[x].id} 
+              />
+            </FriendCard>
+          </ColourCard>
+        )
+      }
+    }
     return board;
   }
 
   render() {
     return <Wrapper colour={this.state.start}>
-      <Board>
-        {
-          this.createBoard()
-        }
-      </Board>
-      <div id="other">
-        <Chat />
-      </div>
+      <Col size="md-8">
+        <Board style={this.state.size}>
+          {
+            this.createBoard()
+          }
+        </Board>
+      </Col>
+      <Col size="md-4">
+        <div id="other">
+          <Checkbox
+            checkedIcon={<Visibility />}
+            uncheckedIcon={<VisibilityOff />}
+            onCheck={this.updateCheck.bind(this)}
+            label="Animate Gifs"
+            style={{marginBottom: 16}}
+          />
+          <Chat />
+        </div>
+      </Col>
     </Wrapper>
   }
 }

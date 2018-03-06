@@ -1,12 +1,12 @@
 import axios from "axios";
 
 const BASEURL = "https://api.giphy.com/v1/gifs/search?q=";
-const APIKEY = "&api_key=dc6zaTOxFJmzC&limit=16&offset=";
+const APIKEY = "&api_key=dc6zaTOxFJmzC&limit=";
 
 // Export an object with a "search" method that searches the Giphy API for the passed query
 export default {
-  search: function(query, offset) {
-    return axios.get(BASEURL + query + APIKEY + offset);
+  search: function(query, offset, limit) {
+    return axios.get(BASEURL + query + APIKEY + limit + offset);
   },
   // Gets all boards
   getBoards: function() {

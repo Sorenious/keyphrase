@@ -5,7 +5,7 @@ const boardSchema = new Schema({
   layout: { type: Array, required: true },
   colourScheme: { type: Array, required: true },
   cover: { type: Array, required: true },
-  start: { type: String, required: true},
+  turn: { type: String, required: true},
   size: { type: String, required: true}
 });
 

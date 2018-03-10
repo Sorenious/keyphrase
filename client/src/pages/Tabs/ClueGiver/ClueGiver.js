@@ -5,6 +5,7 @@ import CoverCard from "../../../components/CoverCard";
 import Wrapper from "../../../components/Wrapper";
 import Board from "../../../components/Board";
 import Chat from "../../../components/Chat";
+import Drawer from "../../../components/Instructions";
 import { Col, Row, Container } from "../../../components/Grid";
 import { socketConnect } from 'socket.io-react';
 import Checkbox from 'material-ui/Checkbox';
@@ -20,7 +21,7 @@ class ClueGiver extends Component {
       picResults: [],
       colourKey: [],
       cover: [],
-      start: "",
+      turn: "",
       size: "",
       animate: false
     };
@@ -48,9 +49,13 @@ class ClueGiver extends Component {
       API.getBoard(data.id)
       .then(res => {
         console.log(res, "Board is here");
-        this.setState({ picResults: res.data.layout, colourKey: res.data.colourScheme, cover: res.data.cover, start: res.data.start, size: res.data.size })
+        this.setState({ picResults: res.data.layout, colourKey: res.data.colourScheme, cover: res.data.cover, turn: res.data.turn, size: res.data.size })
       })
       .catch(err => console.log(err));
+    })
+
+    socket.on('nextTurn', data=>{
+      this.setState({ turn: data})
     })
   }
 
@@ -81,7 +86,7 @@ class ClueGiver extends Component {
     API.getBoard(id)
       .then(res => {
         console.log(res, "Board is here");
-        this.setState({ picResults: res.data.layout, colourKey: res.data.colourScheme, cover: res.data.cover, start: res.data.start, size: res.data.size })
+        this.setState({ picResults: res.data.layout, colourKey: res.data.colourScheme, cover: res.data.cover, turn: res.data.turn, size: res.data.size })
       })
       .catch(err => console.log(err));
   };
@@ -157,7 +162,7 @@ class ClueGiver extends Component {
   }
 
   render() {
-    return <Wrapper colour={this.state.start}>
+    return <Wrapper colour={this.state.turn}>
       <Col size="md-8">
         <Board style={this.state.size}>
           {
@@ -166,16 +171,25 @@ class ClueGiver extends Component {
         </Board>
       </Col>
       <Col size="md-4">
-        <div id="other">
-          <Checkbox
-            checkedIcon={<Visibility />}
-            uncheckedIcon={<VisibilityOff />}
-            onCheck={this.updateCheck.bind(this)}
-            label="Animate Gifs"
-            style={{marginBottom: 16}}
-          />
+        <Row>
+          <Col size="sm-4">
+            <Checkbox
+              checkedIcon={<Visibility />}
+              uncheckedIcon={<VisibilityOff />}
+              onCheck={this.updateCheck.bind(this)}
+              label="Animate Gifs"
+              style={{marginBottom: 16}}
+            />
+          </Col>
+          <Col size="sm-4">
+            
+          </Col>
+          <Col size="sm-4">
+            <Drawer />
+          </Col>
+        </Row>
           <Chat />
-        </div>
+        
       </Col>
     </Wrapper>
   }

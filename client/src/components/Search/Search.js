@@ -41,8 +41,8 @@ export class Search extends Component {
           <input onClick={this.handleInputChange} type="radio" name="difficulty" value="25" />
           <label>Veteran (5x5)</label>
         </span>
-          <button onClick={e=>this.props.handleFormSubmit(e, this.state)} className="btn btn-primary">
-            Create Game
+          <button onClick={e=>this.props.handleFormSubmit(e, this.state)} >
+            Create New Game Board
           </button>
       </div>
     </div>;

@@ -75,6 +75,11 @@ class Chat extends Component {
     this.setState({ [e.target.name]: e.target.value });
   }
 
+  handleTeam(e){
+    this.setState({ [e.target.name]: e.target.value });
+    this.props.saveTeam(e.target.value);
+  }
+
   handleSlider = (event, value) => {
     this.setState({slider: value});
     audioElement.volume = this.state.slider;
@@ -85,7 +90,7 @@ class Chat extends Component {
     
     const displayUsers = users.map((user, i)=><div className='user' key={i} style={{color: user.team}}>{user.name}</div>)
 
-    let displayMsg = messages.map((msg, i)=><div className='message' key={i} style={{color: msg.tm}}><span>{msg.timestamp}→</span><span>{msg.name}:</span><span>{msg.msg}</span></div>)
+    let displayMsg = messages.map((msg, i)=><div className='message' key={i} style={{color: msg.tm}}><span>{msg.timestamp}→ </span><span>{msg.name}: </span><span>{msg.msg}</span></div>)
     displayMsg.reverse();
 
     return (
@@ -104,14 +109,21 @@ class Chat extends Component {
               <div className="message-area">
                 {displayMsg}
               </div>
-            <Volume 
-              value={this.state.slider}
-              handleSlider={this.handleSlider}
-            />
+              <Volume 
+                value={this.state.slider}
+                handleSlider={this.handleSlider}
+              />
               <form onSubmit={e=>this.sendMsg(e)} className="input-box">
                 <input onChange={e=>this.handleInput(e)} value={this.state.message} name='message' type="text"/>
                 <button type='submit'>Send</button>
               </form>
+              <div className="teams">
+                Pick Team:<br />
+                <label htmlFor="">Red</label>
+                <input onClick={e=>this.handleTeam(e)} type="radio" name="team" value="#CC0000" />
+                <label htmlFor="">Blue</label>
+                <input onClick={e=>this.handleTeam(e)} type="radio" name="team" value="#0000CC" />
+              </div>
             </section>
           </div>
           :
@@ -120,10 +132,6 @@ class Chat extends Component {
               <div className="input-group">
                 <label htmlFor="">Name</label>
                 <input onChange={e=>this.handleInput(e)} value={this.state.name} type="text" name='name' className="username"/>
-                <label htmlFor="">Red Team</label>
-                <input onClick={e=>this.handleInput(e)} type="radio" name="team" value="#CC0000" />
-                <label htmlFor="">Blue Team</label>
-                <input onClick={e=>this.handleInput(e)} type="radio" name="team" value="#0000CC" />
               </div>
               <button type='submit' className="login-button">Login</button>
             </form>

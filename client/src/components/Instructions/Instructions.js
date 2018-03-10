@@ -15,10 +15,12 @@ export default class InstructionDrawer extends React.Component {
   render() {
     return (
       <div>
-        <RaisedButton
-          label="Toggle Drawer"
+        <button
+          label="Instructions"
           onClick={this.handleToggle}
-        />
+        >
+        Instructions
+        </button>
         <Drawer open={this.state.open}>
           <MenuItem>Menu Item</MenuItem>
           <MenuItem>Menu Item 2</MenuItem>

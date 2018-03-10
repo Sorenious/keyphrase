@@ -4,6 +4,7 @@ import CoverCard from "../../../components/CoverCard";
 import Wrapper from "../../../components/Wrapper";
 import Board from "../../../components/Board";
 import Chat from "../../../components/Chat";
+import Drawer from "../../../components/Instructions";
 import { Col, Row, Container } from "../../../components/Grid";
 import { socketConnect } from 'socket.io-react';
 import { Search } from "../../../components/Search";
@@ -20,12 +21,14 @@ class GameBoard extends Component {
       picResults: [],
       colourKey: [],
       cover: [],
-      start: "",
+      turn: "",
       size: "",
-      animate: false
+      animate: false,
+      team: ""
     };
 
     this.handleFormSubmit = this.handleFormSubmit.bind(this);
+    this.saveTeam = this.saveTeam.bind(this);
   }
 
   componentDidMount() {
@@ -39,6 +42,9 @@ class GameBoard extends Component {
       for (var x=0; x<newCover.length; x++) {
         if (this.state.picResults[x].id === data.id) {
           newCover[x] = this.state.colourKey[x];
+          if (this.state.colourKey[x] !== this.state.team) {
+            this.endTurn();
+          }
         }
       }
       console.log("Click Click Click", newCover)
@@ -54,9 +60,14 @@ class GameBoard extends Component {
       API.getBoard(data.id)
       .then(res => {
         console.log(res, "Board is here");
-        this.setState({ picResults: res.data.layout, colourKey: res.data.colourScheme, cover: res.data.cover, start: res.data.start, size: res.data.size })
+        this.setState({ picResults: res.data.layout, colourKey: res.data.colourScheme, cover: res.data.cover, turn: res.data.turn, size: res.data.size })
       })
       .catch(err => console.log(err));
+    })
+
+    socket.on('nextTurn', data=>{
+      this.setState({ turn: data});
+      console.log("Next Turn?");
     })
   }
 
@@ -87,33 +98,16 @@ class GameBoard extends Component {
     API.getBoard(id)
       .then(res => {
         console.log(res, "Board is here");
-        this.setState({ picResults: res.data.layout, colourKey: res.data.colourScheme, cover: res.data.cover, start: res.data.start, size: res.data.size })
+        this.setState({ picResults: res.data.layout, colourKey: res.data.colourScheme, cover: res.data.cover, turn: res.data.turn, size: res.data.size })
       })
       .catch(err => console.log(err));
   };
 
   revealColour = (id) => {
-    this.props.socket.emit('reveal', id);
-    // let newCover = this.state.cover;
-    // console.log(this.state.cover);
-    // for (var x=0; x<newCover.length; x++) {
-    //   if (this.state.picResults[x].id === id) {
-    //     newCover[x] = this.state.colourKey[x];
-    //   }
-    // }
-    // console.log("Click Click Click", newCover)
-    // this.setState({
-    //   cover: newCover
-    // })
+    if (this.state.team === this.state.turn) {
+      this.props.socket.emit('reveal', id);
+    }
   }
-
-  // searchGiphy = (query, offset) => {
-  //   API.search(query, offset)
-  //     .then(res => {
-  //       var pics = this.shuffleArray(res.data.data, "picResults")
-  //     })
-  //     .catch(err => console.log(err));
-  // };
 
   // handleInputChange = event => {
   //   const name = event.target.name;
@@ -122,6 +116,34 @@ class GameBoard extends Component {
   //     [name]: value
   //   });
   // };
+
+  endTurn = () => {
+    let nextTeam;
+    if (this.state.turn === "#CC0000") {
+      nextTeam = "#0000CC";
+      API.updateBoard(this.props.id, {turn: nextTeam})
+            .then(res => {
+              console.log(res, "Update turn");
+              this.props.socket.emit('newTurn', nextTeam);
+            })
+            .catch(err => console.log(err));
+      console.log(nextTeam, "Is the end turn happening?");
+    } else if (this.state.turn === "#0000CC") {
+      nextTeam = "#CC0000";
+      API.updateBoard(this.props.id, {turn: nextTeam})
+            .then(res => {
+              console.log(res, "Update turn");
+              this.props.socket.emit('newTurn', nextTeam);
+            })
+            .catch(err => console.log(err));
+      console.log(nextTeam, "Is the end turn happening?");
+    }
+
+  }
+
+  saveTeam = event => {
+    this.setState({ team: event });
+  }
 
   // When the form is submitted, setup the game board using the search criteria
   handleFormSubmit = (event, submission) => {
@@ -159,20 +181,20 @@ class GameBoard extends Component {
           key = colourData.data[index].start;
           if (index === 0 || index === 2) {
             this.setState({
-              start: "#CC0000"
+              turn: "#CC0000"
             })
           } else if (index === 1 || index === 3) {
             this.setState({
-              start: "#0000CC"
+              turn: "#0000CC"
             })
           }
           key = this.shuffleArray(key, "colourKey");
-          console.log(pics, key, this.state.start);
+          console.log(pics, key, this.state.turn);
           API.updateBoard(this.props.id, {
             layout: pics,
             colourScheme: key,
             cover: this.state.cover,
-            start: this.state.start,
+            turn: this.state.turn,
             size: width
           })
             .then(res => this.props.socket.emit('update', this.props.id))
@@ -224,7 +246,8 @@ class GameBoard extends Component {
   }
 
   render() {
-    return <Wrapper colour={this.state.start}>
+    console.log(this.state.turn, "Turn");
+    return <Wrapper colour={this.state.turn}>
       <Col size="md-8">
         <Board style={this.state.size}>
           {
@@ -233,22 +256,34 @@ class GameBoard extends Component {
         </Board>
       </Col>
       <Col size="md-4">
-        <div id="other">
+        <Row>
+          <Col size="sm-4">
+            <Checkbox
+              checkedIcon={<Visibility />}
+              uncheckedIcon={<VisibilityOff />}
+              onCheck={this.updateCheck.bind(this)}
+              label="Animate Gifs"
+              style={{marginBottom: 16}}
+            />
+          </Col>
+          <Col size="sm-4">
+            <button onClick={e=>this.endTurn(e)} >
+            End Turn
+            </button>
+          </Col>
+          <Col size="sm-4">
+            <Drawer />
+          </Col>
+        </Row>
+          <Chat saveTeam={this.saveTeam}/>
+        
           <Search
-              colour={this.state.start}
+              colour={this.state.turn}
               search={this.state.search}
               handleFormSubmit={this.handleFormSubmit}
               handleInputChange={this.handleInputChange}
           />
-          <Checkbox
-            checkedIcon={<Visibility />}
-            uncheckedIcon={<VisibilityOff />}
-            onCheck={this.updateCheck.bind(this)}
-            label="Animate Gifs"
-            style={{marginBottom: 16}}
-        />
-          <Chat />
-        </div>
+
       </Col>
     </Wrapper>
   }

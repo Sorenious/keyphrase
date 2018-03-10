@@ -12,7 +12,7 @@ class Introduction extends Component {
       picResults: [],
       colourKey: [],
       cover: ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
-      start: "",
+      turn: "",
       size: ""
     };
   }
@@ -79,20 +79,20 @@ class Introduction extends Component {
           key = colourData.data[index].start;
           if (index === 0 || index === 2) {
             this.setState({
-              start: "#CC0000"
+              turn: "#CC0000"
             })
           } else if (index === 1 || index === 3) {
             this.setState({
-              start: "#0000CC"
+              turn: "#0000CC"
             })
           }
           key = this.shuffleArray(key, "colourKey");
-          console.log(pics, key, this.state.start);
+          console.log(pics, key, this.state.turn);
           API.saveBoard({
             layout: pics,
             colourScheme: key,
             cover: this.state.cover,
-            start: this.state.start,
+            turn: this.state.turn,
             size: width
           })
             .then(res => {
@@ -184,7 +184,7 @@ class Introduction extends Component {
 
       <div id="other">
         <Search
-            colour={this.state.start}
+            colour={this.state.turn}
             search={this.state.search}
             handleFormSubmit={this.handleFormSubmit}
             handleInputChange={this.handleInputChange}

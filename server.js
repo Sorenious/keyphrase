@@ -103,6 +103,11 @@ io.on('connection', function(socket){
     socket.on('update', function(data) {
         io.sockets.to(room).emit('newGame', {id: data})
     })
+
+    socket.on('newTurn', function(data) {
+        console.log(data, "this turn")
+        io.sockets.to(room).emit('nextTurn', data)
+    })
 });
 
 setInterval(() => io.emit('time', new Date().toTimeString()), 1000);

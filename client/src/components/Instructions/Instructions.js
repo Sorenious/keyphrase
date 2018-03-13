@@ -10,7 +10,11 @@ export default class InstructionDrawer extends React.Component {
     this.state = {open: false};
   }
 
-  handleToggle = () => this.setState({open: !this.state.open});
+  handleToggle = () => {
+  	this.setState({open: !this.state.open});
+  	console.log(this.props, "Instruction props");
+  	
+  }
 
   render() {
     return (
@@ -22,8 +26,7 @@ export default class InstructionDrawer extends React.Component {
         Instructions
         </button>
         <Drawer open={this.state.open}>
-          <MenuItem>Menu Item</MenuItem>
-          <MenuItem>Menu Item 2</MenuItem>
+          <MenuItem>Filler</MenuItem>
         </Drawer>
       </div>
     );

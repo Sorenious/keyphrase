@@ -78,17 +78,44 @@ io.on('connection', function(socket){
         }          
     })
 
+    socket.on('role switch', function(name, status){
+        console.log(name, "Current name");
+        for (var i = 0; i < state[room].users.length; i++) {
+            if (state[room].users[i].id == socket.id){
+                state[room].users.splice(i, 1);
+                break;
+            }
+        }
+        let newName;
+        
+        if (!status) {
+            newName = name + "-K";
+            state[room].users.push({
+                name: newName,
+                id: socket.id
+            })
+        } else {
+            newName = name.replace('-K', '');
+            state[room].users.push({
+                name: newName,
+                id: socket.id
+            })
+        }
+        socket.emit('logged in', {loggedIn: true, currentUser: newName, history: state[room].messages})
+        io.sockets.to(room).emit('update users', {users: state[room].users});
+    })
+
     socket.on('send message', function(data) {
         let ts = new Date()
         data.timestamp = `${ts.getHours()}:${ts.getMinutes()}`;
         state[room].messages.push(data)
         io.sockets.to(room).emit('message', state[room].messages)
     })
-    socket.on('login', function (name, team) {
-        console.log(name, team);
+
+    socket.on('login', function (name) {
+        console.log(name);
         state[room].users.push({
             name: name,
-            team: team,
             id: socket.id
         })
         socket.emit('logged in', {loggedIn: true, currentUser: name, history: state[room].messages})
@@ -97,16 +124,20 @@ io.on('connection', function(socket){
     })
 
     socket.on('reveal', function(data) {
-        io.sockets.to(room).emit('revealed', {id: data})
+        io.sockets.to(room).emit('revealed', data)
     })
 
     socket.on('update', function(data) {
         io.sockets.to(room).emit('newGame', {id: data})
     })
 
-    socket.on('newTurn', function(data) {
+    socket.on('new turn', function(data) {
         console.log(data, "this turn")
-        io.sockets.to(room).emit('nextTurn', data)
+        io.sockets.to(room).emit('next turn', data)
+    })
+
+    socket.on('end game', function(data) {
+        io.sockets.to(room).emit('game over')
     })
 });
 

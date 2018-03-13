@@ -11,6 +11,8 @@ import { socketConnect } from 'socket.io-react';
 import Checkbox from 'material-ui/Checkbox';
 import Visibility from 'material-ui/svg-icons/action/visibility';
 import VisibilityOff from 'material-ui/svg-icons/action/visibility-off';
+import Dialog from 'material-ui/Dialog';
+import FlatButton from 'material-ui/FlatButton';
 import API from "../../../utils/API";
 
 class ClueGiver extends Component {
@@ -23,7 +25,9 @@ class ClueGiver extends Component {
       cover: [],
       turn: "",
       size: "",
-      animate: false
+      animate: false,
+      open: false,
+      endMessage: ""
     };
   }
 
@@ -32,16 +36,16 @@ class ClueGiver extends Component {
     let { socket } = this.props;
 
     socket.on('revealed', data=>{
-      let newCover = this.state.cover;
-      console.log(this.state.cover);
-      for (var x=0; x<newCover.length; x++) {
-        if (this.state.picResults[x].id === data.id) {
-          newCover[x] = this.state.colourKey[x];
-        }
-      }
-      console.log("Click Click Click", newCover)
+      // let newCover = this.state.cover;
+      // console.log(this.state.cover);
+      // for (var x=0; x<newCover.length; x++) {
+      //   if (this.state.picResults[x].id === data.id) {
+      //     newCover[x] = this.state.colourKey[x];
+      //   }
+      // }
+      console.log("Click Click Click", data)
       this.setState({
-        cover: newCover
+        cover: data
       })
     })
 
@@ -54,8 +58,17 @@ class ClueGiver extends Component {
       .catch(err => console.log(err));
     })
 
-    socket.on('nextTurn', data=>{
+    socket.on('next turn', data=>{
       this.setState({ turn: data})
+    })
+
+    socket.on('game over', data=>{
+      if (this.state.team === this.state.turn) {
+        this.setState({endMessage: "Your team has lost"});
+      } else if (this.state.team !== this.state.turn) {
+        this.setState({endMessage: "Your team has won"});
+      }
+      this.handleOpen();
     })
   }
 
@@ -72,6 +85,14 @@ class ClueGiver extends Component {
     //   [name]: randResults
     // });
   }
+
+  handleOpen = () => {
+    this.setState({open: true});
+  };
+
+  handleClose = () => {
+    this.setState({open: false});
+  };
 
   updateCheck() {
     console.log(this.state.animate, "Animated state");
@@ -102,6 +123,10 @@ class ClueGiver extends Component {
     // this.setState({
     //   cover: newCover
     // })
+  }
+
+  saveTeam = event => {
+    this.setState({ team: event });
   }
 
   // searchGiphy = (query, offset) => {
@@ -162,6 +187,19 @@ class ClueGiver extends Component {
   }
 
   render() {
+    const actions = [
+      <FlatButton
+        label="Cancel"
+        primary={true}
+        onClick={this.handleClose}
+      />,
+      <FlatButton
+        label="Submit"
+        primary={true}
+        keyboardFocused={true}
+        onClick={this.handleClose}
+      />,
+    ];
     return <Wrapper colour={this.state.turn}>
       <Col size="md-8">
         <Board style={this.state.size}>
@@ -188,9 +226,21 @@ class ClueGiver extends Component {
             <Drawer />
           </Col>
         </Row>
-          <Chat />
+          <Chat 
+            saveTeam={this.saveTeam}
+            handleClueTab={this.props.handleClueTab}
+            clue={true}
+          />
         
       </Col>
+      <Dialog
+          modal={false}
+          contentStyle={{width: '20%', textAlign: 'center'}}
+          open={this.state.open}
+          onRequestClose={this.handleClose}
+        >
+          <h1>{this.state.endMessage}</h1>
+        </Dialog>
     </Wrapper>
   }
 }

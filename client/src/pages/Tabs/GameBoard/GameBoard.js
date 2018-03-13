@@ -11,6 +11,8 @@ import { Search } from "../../../components/Search";
 import Checkbox from 'material-ui/Checkbox';
 import Visibility from 'material-ui/svg-icons/action/visibility';
 import VisibilityOff from 'material-ui/svg-icons/action/visibility-off';
+import Dialog from 'material-ui/Dialog';
+import FlatButton from 'material-ui/FlatButton';
 import API from "../../../utils/API";
 
 class GameBoard extends Component {
@@ -24,7 +26,9 @@ class GameBoard extends Component {
       turn: "",
       size: "",
       animate: false,
-      team: ""
+      team: "",
+      open: false,
+      endMessage: ""
     };
 
     this.handleFormSubmit = this.handleFormSubmit.bind(this);
@@ -37,19 +41,21 @@ class GameBoard extends Component {
     let { socket } = this.props;
 
     socket.on('revealed', data=>{
-      let newCover = this.state.cover;
-      console.log(this.state.cover);
-      for (var x=0; x<newCover.length; x++) {
-        if (this.state.picResults[x].id === data.id) {
-          newCover[x] = this.state.colourKey[x];
-          if (this.state.colourKey[x] !== this.state.team) {
-            this.endTurn();
-          }
-        }
-      }
-      console.log("Click Click Click", newCover)
+      // let newCover = this.state.cover;
+      // console.log(this.state.cover);
+      // for (var x=0; x<newCover.length; x++) {
+      //   if (this.state.picResults[x].id === data.id) {
+      //     newCover[x] = this.state.colourKey[x];
+      //     if (this.state.colourKey[x] === "#190020") {
+      //       this.props.socket.emit('end game');
+      //     } else if (this.state.colourKey[x] !== this.state.team) {
+      //       this.endTurn();
+      //     }
+      //   }
+      // }
+      console.log("Click Click Click", data)
       this.setState({
-        cover: newCover
+        cover: data
       })
 
       API.updateBoard(this.props.id, {cover: this.state.cover})
@@ -65,9 +71,18 @@ class GameBoard extends Component {
       .catch(err => console.log(err));
     })
 
-    socket.on('nextTurn', data=>{
+    socket.on('next turn', data=>{
       this.setState({ turn: data});
       console.log("Next Turn?");
+    })
+
+    socket.on('game over', data=>{
+      if (this.state.team === this.state.turn) {
+        this.setState({endMessage: "Your team has lost"});
+      } else if (this.state.team !== this.state.turn) {
+        this.setState({endMessage: "Your team has won"});
+      }
+      this.handleOpen();
     })
   }
 
@@ -84,6 +99,14 @@ class GameBoard extends Component {
     //   [name]: randResults
     // });
   }
+
+  handleOpen = () => {
+    this.setState({open: true});
+  };
+
+  handleClose = () => {
+    this.setState({open: false});
+  };
 
   updateCheck() {
     console.log(this.state.animate, "Animated state");
@@ -104,8 +127,20 @@ class GameBoard extends Component {
   };
 
   revealColour = (id) => {
+    let newCover = this.state.cover;
+    console.log(newCover);
     if (this.state.team === this.state.turn) {
-      this.props.socket.emit('reveal', id);
+      for (var x=0; x<newCover.length; x++) {
+        if (this.state.picResults[x].id === id) {
+          newCover[x] = this.state.colourKey[x];
+          this.props.socket.emit('reveal', newCover);
+          if (this.state.colourKey[x] === "#190020") {
+            this.props.socket.emit('end game');
+          } else if (this.state.colourKey[x] !== this.state.team) {
+            this.endTurn();
+          }
+        }
+      }
     }
   }
 
@@ -124,7 +159,7 @@ class GameBoard extends Component {
       API.updateBoard(this.props.id, {turn: nextTeam})
             .then(res => {
               console.log(res, "Update turn");
-              this.props.socket.emit('newTurn', nextTeam);
+              this.props.socket.emit('new turn', nextTeam);
             })
             .catch(err => console.log(err));
       console.log(nextTeam, "Is the end turn happening?");
@@ -133,7 +168,7 @@ class GameBoard extends Component {
       API.updateBoard(this.props.id, {turn: nextTeam})
             .then(res => {
               console.log(res, "Update turn");
-              this.props.socket.emit('newTurn', nextTeam);
+              this.props.socket.emit('new turn', nextTeam);
             })
             .catch(err => console.log(err));
       console.log(nextTeam, "Is the end turn happening?");
@@ -179,13 +214,21 @@ class GameBoard extends Component {
             index = Math.floor((Math.random() * 2) + 2);
           }
           key = colourData.data[index].start;
-          if (index === 0 || index === 2) {
+          if (index === 0) {
             this.setState({
-              turn: "#CC0000"
+              turn: "#CC0000", redCount: 6, blueCount: 5
             })
-          } else if (index === 1 || index === 3) {
+          } else if (index === 1) {
             this.setState({
-              turn: "#0000CC"
+              turn: "#0000CC", blueCount: 6, redCount: 5
+            })
+          } else if (index === 2) {
+            this.setState({
+              turn: "#CC0000", redCount: 9, blueCount: 8
+            })
+          } else if (index === 3) {
+            this.setState({
+              turn: "#0000CC", blueCount: 9, redCount: 8
             })
           }
           key = this.shuffleArray(key, "colourKey");
@@ -246,6 +289,19 @@ class GameBoard extends Component {
   }
 
   render() {
+    const actions = [
+      <FlatButton
+        label="Cancel"
+        primary={true}
+        onClick={this.handleClose}
+      />,
+      <FlatButton
+        label="Submit"
+        primary={true}
+        keyboardFocused={true}
+        onClick={this.handleClose}
+      />,
+    ];
     console.log(this.state.turn, "Turn");
     return <Wrapper colour={this.state.turn}>
       <Col size="md-8">
@@ -272,10 +328,14 @@ class GameBoard extends Component {
             </button>
           </Col>
           <Col size="sm-4">
-            <Drawer />
+            <Drawer handleClueTab={this.props.handleClueTab}/>
           </Col>
         </Row>
-          <Chat saveTeam={this.saveTeam}/>
+          <Chat 
+            saveTeam={this.saveTeam}
+            handleClueTab={this.props.handleClueTab}
+            clue={false}
+          />
         
           <Search
               colour={this.state.turn}
@@ -285,6 +345,14 @@ class GameBoard extends Component {
           />
 
       </Col>
+      <Dialog
+          modal={false}
+          contentStyle={{width: '20%', textAlign: 'center'}}
+          open={this.state.open}
+          onRequestClose={this.handleClose}
+        >
+          <h1>{this.state.endMessage}</h1>
+        </Dialog>
     </Wrapper>
   }
 }

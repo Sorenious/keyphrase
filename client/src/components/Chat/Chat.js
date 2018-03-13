@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Col } from "../../components/Grid";
 import { socketConnect } from 'socket.io-react';
 import Volume from "../../components/Volume";
 import Ding from "./zapsplat_multimedia_game_star_win_gain_x1_12387.mp3";
@@ -40,7 +41,7 @@ class Chat extends Component {
 
     socket.on('logged in', (data)=>{
       console.log(data)
-      this.setState({ loggedIn: data.loggedIn, user: data.currentUser, messages: data.history});
+      this.setState({ loggedIn: data.loggedIn, user: data.currentUser, name: data.currentUser, messages: data.history});
     })
 
     socket.on('update users', data=>{
@@ -60,7 +61,7 @@ class Chat extends Component {
     console.log('logging in')
     console.log(this.state.team)
     console.log(e)
-    this.props.socket.emit('login', this.state.name, this.state.team)
+    this.props.socket.emit('login', this.state.name)
   }
 
   sendMsg(e){
@@ -88,7 +89,7 @@ class Chat extends Component {
   render() {
     let { users, messages} = this.state;
     
-    const displayUsers = users.map((user, i)=><div className='user' key={i} style={{color: user.team}}>{user.name}</div>)
+    const displayUsers = users.map((user, i)=><div className='user' key={i} >{user.name}</div>)
 
     let displayMsg = messages.map((msg, i)=><div className='message' key={i} style={{color: msg.tm}}><span>{msg.timestamp}→ </span><span>{msg.name}: </span><span>{msg.msg}</span></div>)
     displayMsg.reverse();
@@ -117,13 +118,31 @@ class Chat extends Component {
                 <input onChange={e=>this.handleInput(e)} value={this.state.message} name='message' type="text"/>
                 <button type='submit'>Send</button>
               </form>
-              <div className="teams">
+              <form className="teams">
+              <Col size="sm-6">
                 Pick Team:<br />
                 <label htmlFor="">Red</label>
                 <input onClick={e=>this.handleTeam(e)} type="radio" name="team" value="#CC0000" />
                 <label htmlFor="">Blue</label>
                 <input onClick={e=>this.handleTeam(e)} type="radio" name="team" value="#0000CC" />
-              </div>
+                </Col>
+                <Col size="sm-6">
+                Pick Role:<br />
+                {
+                  this.props.clue
+                  ?
+                  <select onChange={e=>this.props.handleClueTab(e, this.state.name, this.props.clue)}>
+                    <option value="receive" name="team">Receiver</option>
+                    <option value="clue" selected>Keymaster</option>
+                  </select>
+                  :
+                  <select onChange={e=>this.props.handleClueTab(e, this.state.name, this.props.clue)}>
+                    <option value="receive" selected>Receiver</option>
+                    <option value="clue">Keymaster</option>
+                  </select>
+                }
+                </Col>
+              </form>
             </section>
           </div>
           :

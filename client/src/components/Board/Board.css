@@ -9,8 +9,10 @@
 
 .board4 {
   width: 80%;
+  max-width: 750px;
 }
 
 .board5 {
   width: 100%;
+  max-width: 925px;
 }

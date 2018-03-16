@@ -37,6 +37,30 @@ class Introduction extends Component {
     // });
   }
 
+  createRandBoard = (array, difficulty) => {
+    let newBoard = [];
+    let diff = parseInt(difficulty)
+    console.log(array);
+    if (array.length) {
+      for (var i = 0; i < diff; i++) {
+        let bool = true;
+        do {
+          var j = Math.floor(Math.random() * 500);
+          if (newBoard.indexOf(array[j]) === -1) {
+            newBoard.push(array[j]);
+            bool = false;
+            console.log(array[j], bool);
+          } else if (array[j] === undefined) {
+            bool = false;
+          }
+        } while (bool)
+      }
+    }
+    if (newBoard.length === diff) {
+      return newBoard;
+    }
+  }
+
   // handleInputChange = event => {
   //   const name = event.target.name;
   //   const value = event.target.value;
@@ -59,14 +83,14 @@ class Introduction extends Component {
     this.setState({
       cover: overlay
     })
-    let offset = Math.floor(Math.random() * (98 + 1));
-    offset = offset + "&rating=G";
-    let limit = submission.difficulty + "&offset="
+    // let offset = Math.floor(Math.random() * (98 + 1));
+    // offset = offset + "&rating=G";
+    // let limit = submission.difficulty + "&offset="
     //this.searchGiphy(this.state.search, offset);
 
-    API.search(submission.search, offset, limit)
+    API.search(submission.search)
       .then(picData => {
-        pics = this.shuffleArray(picData.data.data, "picResults")
+        pics = this.createRandBoard(picData.data.data, submission.difficulty)
         API.getColours()
         .then(colourData => {
           let index;

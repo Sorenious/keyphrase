@@ -19,17 +19,17 @@ var socket;
 
 // var socket;
 
-const styles = {
-  headline: {
-    fontSize: 24,
-    paddingTop: 16,
-    marginBottom: 12,
-    fontWeight: 400,
-  },
-  starter: {
-    backgroundColor: "#0000CC",
-  }
-};
+// const styles = {
+//   headline: {
+//     fontSize: 24,
+//     paddingTop: 16,
+//     marginBottom: 12,
+//     fontWeight: 400,
+//   },
+//   starter: {
+//     backgroundColor: "#0000CC",
+//   }
+// };
 
 // const connect = props => {
 //   console.log(props, "Here's props");

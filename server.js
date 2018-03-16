@@ -137,7 +137,7 @@ io.on('connection', function(socket){
     })
 
     socket.on('end game', function(data) {
-        io.sockets.to(room).emit('game over')
+        io.sockets.to(room).emit('game over', data)
     })
 });
 

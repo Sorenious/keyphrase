@@ -6,13 +6,12 @@ import Wrapper from "../../../components/Wrapper";
 import Board from "../../../components/Board";
 import Chat from "../../../components/Chat";
 import Drawer from "../../../components/Instructions";
-import { Col, Row, Container } from "../../../components/Grid";
+import { Col, Row } from "../../../components/Grid";
 import { socketConnect } from 'socket.io-react';
 import Checkbox from 'material-ui/Checkbox';
 import Visibility from 'material-ui/svg-icons/action/visibility';
 import VisibilityOff from 'material-ui/svg-icons/action/visibility-off';
 import Dialog from 'material-ui/Dialog';
-import FlatButton from 'material-ui/FlatButton';
 import API from "../../../utils/API";
 
 class ClueGiver extends Component {
@@ -26,6 +25,7 @@ class ClueGiver extends Component {
       turn: "",
       size: "",
       animate: false,
+      team: "",
       open: false,
       endMessage: ""
     };
@@ -53,7 +53,7 @@ class ClueGiver extends Component {
       API.getBoard(data.id)
       .then(res => {
         console.log(res, "Board is here");
-        this.setState({ picResults: res.data.layout, colourKey: res.data.colourScheme, cover: res.data.cover, turn: res.data.turn, size: res.data.size })
+        this.setState({ picResults: res.data.layout, colourKey: res.data.colourScheme, cover: res.data.cover, turn: res.data.turn, size: res.data.size, redCount: res.data.red, blueCount: res.data.blue })
       })
       .catch(err => console.log(err));
     })
@@ -63,10 +63,21 @@ class ClueGiver extends Component {
     })
 
     socket.on('game over', data=>{
-      if (this.state.team === this.state.turn) {
-        this.setState({endMessage: "Your team has lost"});
-      } else if (this.state.team !== this.state.turn) {
-        this.setState({endMessage: "Your team has won"});
+      if (data === "#190020") {
+        if (this.state.team === this.state.turn) {
+          this.setState({endMessage: "Your team has lost"});
+        } else if (this.state.team !== this.state.turn) {
+          this.setState({endMessage: "Your team has won"});
+        }
+      } else if (data === "old board") {
+        this.setState({endMessage: "This game is over. I suggest making a new board."});
+      } else {
+        if (this.state.team === data) {
+          this.setState({endMessage: "Your team has won"});
+        }
+        if (this.state.team !== data) {
+          this.setState({endMessage: "Your team has lost"});
+        }
       }
       this.handleOpen();
     })
@@ -107,7 +118,7 @@ class ClueGiver extends Component {
     API.getBoard(id)
       .then(res => {
         console.log(res, "Board is here");
-        this.setState({ picResults: res.data.layout, colourKey: res.data.colourScheme, cover: res.data.cover, turn: res.data.turn, size: res.data.size })
+        this.setState({ picResults: res.data.layout, colourKey: res.data.colourScheme, cover: res.data.cover, turn: res.data.turn, size: res.data.size, redCount: res.data.red, blueCount: res.data.blue })
       })
       .catch(err => console.log(err));
   };
@@ -187,19 +198,6 @@ class ClueGiver extends Component {
   }
 
   render() {
-    const actions = [
-      <FlatButton
-        label="Cancel"
-        primary={true}
-        onClick={this.handleClose}
-      />,
-      <FlatButton
-        label="Submit"
-        primary={true}
-        keyboardFocused={true}
-        onClick={this.handleClose}
-      />,
-    ];
     return <Wrapper colour={this.state.turn}>
       <Col size="md-8">
         <Board style={this.state.size}>
@@ -223,7 +221,7 @@ class ClueGiver extends Component {
             
           </Col>
           <Col size="sm-4">
-            <Drawer />
+            <Drawer page={false} />
           </Col>
         </Row>
           <Chat 

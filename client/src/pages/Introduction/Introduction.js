@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import Wrapper from "../../components/Wrapper";
 import { Search } from "../../components/Search";
-import { Col, Row, Container } from "../../components/Grid";
+import { Col, Row } from "../../components/Grid";
 import API from "../../utils/API";
 
 class Introduction extends Component {
@@ -13,7 +13,9 @@ class Introduction extends Component {
       colourKey: [],
       cover: ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
       turn: "",
-      size: ""
+      size: "",
+      redCount: 0,
+      blueCount: 0
     };
   }
 
@@ -77,13 +79,21 @@ class Introduction extends Component {
             index = Math.floor((Math.random() * 2) + 2);
           }
           key = colourData.data[index].start;
-          if (index === 0 || index === 2) {
+          if (index === 0) {
             this.setState({
-              turn: "#CC0000"
+              turn: "#CC0000", redCount: 6, blueCount: 5
             })
-          } else if (index === 1 || index === 3) {
+          } else if (index === 1) {
             this.setState({
-              turn: "#0000CC"
+              turn: "#0000CC", blueCount: 6, redCount: 5
+            })
+          } else if (index === 2) {
+            this.setState({
+              turn: "#CC0000", redCount: 9, blueCount: 8
+            })
+          } else if (index === 3) {
+            this.setState({
+              turn: "#0000CC", blueCount: 9, redCount: 8
             })
           }
           key = this.shuffleArray(key, "colourKey");
@@ -93,7 +103,10 @@ class Introduction extends Component {
             colourScheme: key,
             cover: this.state.cover,
             turn: this.state.turn,
-            size: width
+            size: width,
+            red: this.state.redCount,
+            blue: this.state.blueCount,
+            over: false
           })
             .then(res => {
               console.log(res.data._id, "Board created")
@@ -107,7 +120,7 @@ class Introduction extends Component {
   }; //End of FormSubmit
 
   render() {
-    return <Wrapper>
+    return <Wrapper className="deshadow">
       <h1 className="title">Keyphrase</h1>
         <Col size="md-6">
           <h2>Game Setup</h2>

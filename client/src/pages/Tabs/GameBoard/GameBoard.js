@@ -5,14 +5,13 @@ import Wrapper from "../../../components/Wrapper";
 import Board from "../../../components/Board";
 import Chat from "../../../components/Chat";
 import Drawer from "../../../components/Instructions";
-import { Col, Row, Container } from "../../../components/Grid";
+import { Col, Row } from "../../../components/Grid";
 import { socketConnect } from 'socket.io-react';
 import { Search } from "../../../components/Search";
 import Checkbox from 'material-ui/Checkbox';
 import Visibility from 'material-ui/svg-icons/action/visibility';
 import VisibilityOff from 'material-ui/svg-icons/action/visibility-off';
 import Dialog from 'material-ui/Dialog';
-import FlatButton from 'material-ui/FlatButton';
 import API from "../../../utils/API";
 
 class GameBoard extends Component {
@@ -28,12 +27,23 @@ class GameBoard extends Component {
       animate: false,
       team: "",
       open: false,
-      endMessage: ""
+      endMessage: "",
+      redCount: 6,
+      blueCount: 6,
+      gameOver: false
     };
 
     this.handleFormSubmit = this.handleFormSubmit.bind(this);
     this.saveTeam = this.saveTeam.bind(this);
   }
+
+  // componentWillMount() {
+  //   if (this.state.redCount === 0) {
+  //     this.props.socket.emit('end game');
+  //   } else if (this.state.blueCount === 0) {
+  //     this.props.socket.emit('end game');
+  //   }
+  // }
 
   componentDidMount() {
     console.log(this.props, "Did mount");
@@ -55,18 +65,26 @@ class GameBoard extends Component {
       // }
       console.log("Click Click Click", data)
       this.setState({
-        cover: data
+        cover: data.cover, redCount: data.countRed, blueCount: data.countBlue
       })
 
-      API.updateBoard(this.props.id, {cover: this.state.cover})
-            .catch(err => console.log(err));
+      if (this.state.redCount === 0) {
+        console.log("Is this hitting early?");
+        this.props.socket.emit('end game', '#CC0000');
+      } else if (this.state.blueCount === 0) {
+        console.log("Is this hitting early?");
+        this.props.socket.emit('end game', '#0000CC');
+      }
+
+      // API.updateBoard(this.props.id, {cover: this.state.cover})
+      //       .catch(err => console.log(err));
     })
 
     socket.on('newGame', data=>{
       API.getBoard(data.id)
       .then(res => {
         console.log(res, "Board is here");
-        this.setState({ picResults: res.data.layout, colourKey: res.data.colourScheme, cover: res.data.cover, turn: res.data.turn, size: res.data.size })
+        this.setState({ picResults: res.data.layout, colourKey: res.data.colourScheme, cover: res.data.cover, turn: res.data.turn, size: res.data.size, redCount: res.data.red, blueCount: res.data.blue, gameOver: res.data.over })
       })
       .catch(err => console.log(err));
     })
@@ -77,13 +95,29 @@ class GameBoard extends Component {
     })
 
     socket.on('game over', data=>{
-      if (this.state.team === this.state.turn) {
-        this.setState({endMessage: "Your team has lost"});
-      } else if (this.state.team !== this.state.turn) {
-        this.setState({endMessage: "Your team has won"});
+      if (data === "#190020") {
+        if (this.state.team === this.state.turn) {
+          this.setState({endMessage: "Your team has lost"});
+        } else if (this.state.team !== this.state.turn) {
+          this.setState({endMessage: "Your team has won"});
+        }
+      } else if (data === "old board") {
+        this.setState({endMessage: "This game is over. I suggest making a new board."});
+      } else {
+        if (this.state.team === data) {
+          this.setState({endMessage: "Your team has won"});
+        }
+        if (this.state.team !== data) {
+          this.setState({endMessage: "Your team has lost"});
+        }
       }
+      this.setState({ gameOver: true });
+      API.updateBoard(this.props.id, { over: true })
+            .catch(err => console.log(err));
       this.handleOpen();
     })
+
+    
   }
 
   shuffleArray = (array, name) => {
@@ -99,6 +133,47 @@ class GameBoard extends Component {
     //   [name]: randResults
     // });
   }
+
+  createRandBoard = (array, difficulty) => {
+    let newBoard = [];
+    let diff = parseInt(difficulty)
+    console.log(array);
+    if (array.length) {
+      for (var i = 0; i < diff; i++) {
+        let bool = true;
+        do {
+          var j = Math.floor(Math.random() * 500);
+          if (newBoard.indexOf(array[j]) === -1) {
+            newBoard.push(array[j]);
+            bool = false;
+            console.log(array[j], bool);
+          } else if (array[j] === undefined) {
+            bool = false;
+          }
+        } while (bool)
+      }
+    }
+    if (newBoard.length === diff) {
+      return newBoard;
+    }
+  }
+
+  // createRandBoard = (numberPool, difficulty) => {
+  //   let newBoard = [];
+  //   let tryAgain = true;
+  //   console.log(numberPool);
+  //   if (numberPool.length) {
+  //     do {
+  //       var externalIndex = Math.floor(Math.random() * 500);
+  //       if (newBoard.indexOf(numberPool[externalIndex]) === -1 && numberPool[externalIndex] !== undefined) {
+  //         newBoard.push(numberPool[externalIndex]);
+  //         console.log(numberPool[externalIndex], tryAgain);
+  //       }
+  //     } while(newBoard.length < parseInt(difficulty));
+  //     return newBoard;
+  //   }
+  // }
+
 
   handleOpen = () => {
     this.setState({open: true});
@@ -121,27 +196,39 @@ class GameBoard extends Component {
     API.getBoard(id)
       .then(res => {
         console.log(res, "Board is here");
-        this.setState({ picResults: res.data.layout, colourKey: res.data.colourScheme, cover: res.data.cover, turn: res.data.turn, size: res.data.size })
+        this.setState({ picResults: res.data.layout, colourKey: res.data.colourScheme, cover: res.data.cover, turn: res.data.turn, size: res.data.size, redCount: res.data.red, blueCount: res.data.blue, gameOver: res.data.over })
+        if (this.state.gameOver) {
+        this.props.socket.emit('end game', 'old board');
+        }
       })
       .catch(err => console.log(err));
   };
 
   revealColour = (id) => {
     let newCover = this.state.cover;
+    let redC = this.state.redCount;
+    let blueC = this.state.blueCount;
     console.log(newCover);
     if (this.state.team === this.state.turn) {
       for (var x=0; x<newCover.length; x++) {
         if (this.state.picResults[x].id === id) {
           newCover[x] = this.state.colourKey[x];
-          this.props.socket.emit('reveal', newCover);
+          if (this.state.colourKey[x] === "#CC0000") {
+            redC--;
+          } else if (this.state.colourKey[x] === "#0000CC") {
+            blueC--;
+          }
+          this.props.socket.emit('reveal', {cover: newCover, countRed: redC, countBlue: blueC});
           if (this.state.colourKey[x] === "#190020") {
-            this.props.socket.emit('end game');
+            this.props.socket.emit('end game', "#190020");
           } else if (this.state.colourKey[x] !== this.state.team) {
             this.endTurn();
           }
         }
       }
     }
+    API.updateBoard(this.props.id, {cover: newCover, red: redC, blue: blueC})
+            .catch(err => console.log(err));
   }
 
   // handleInputChange = event => {
@@ -194,14 +281,14 @@ class GameBoard extends Component {
     this.setState({
       cover: overlay
     })
-    let offset = Math.floor(Math.random() * (98 + 1));
-    offset = offset + "&rating=G";
-    let limit = submission.difficulty + "&offset="
+    // let offset = Math.floor(Math.random() * (98 + 1));
+    // offset = offset + "&rating=G";
+    // let limit = submission.difficulty + "&offset="
     //this.searchGiphy(this.state.search, offset);
 
-    API.search(submission.search, offset, limit)
+    API.search(submission.search)
       .then(picData => {
-        pics = this.shuffleArray(picData.data.data, "picResults")
+        pics = this.createRandBoard(picData.data.data, submission.difficulty)
         API.getColours()
         .then(colourData => {
           let index;
@@ -232,13 +319,16 @@ class GameBoard extends Component {
             })
           }
           key = this.shuffleArray(key, "colourKey");
-          console.log(pics, key, this.state.turn);
+          console.log(pics, key, this.state.turn, this.state.redCount, this.state.blueCount);
           API.updateBoard(this.props.id, {
             layout: pics,
             colourScheme: key,
             cover: this.state.cover,
             turn: this.state.turn,
-            size: width
+            size: width,
+            red: this.state.redCount,
+            blue: this.state.blueCount,
+            over: false
           })
             .then(res => this.props.socket.emit('update', this.props.id))
             .catch(err => console.log(err));
@@ -289,20 +379,7 @@ class GameBoard extends Component {
   }
 
   render() {
-    const actions = [
-      <FlatButton
-        label="Cancel"
-        primary={true}
-        onClick={this.handleClose}
-      />,
-      <FlatButton
-        label="Submit"
-        primary={true}
-        keyboardFocused={true}
-        onClick={this.handleClose}
-      />,
-    ];
-    console.log(this.state.turn, "Turn");
+    console.log(this.state.turn, this.state.redCount, this.state.blueCount, "Turn");
     return <Wrapper colour={this.state.turn}>
       <Col size="md-8">
         <Board style={this.state.size}>
@@ -328,7 +405,7 @@ class GameBoard extends Component {
             </button>
           </Col>
           <Col size="sm-4">
-            <Drawer handleClueTab={this.props.handleClueTab}/>
+            <Drawer handleClueTab={this.props.handleClueTab} page={true} />
           </Col>
         </Row>
           <Chat 

@@ -9,7 +9,7 @@ import io from 'socket.io-client';
 // const socket = io.connect('http://localhost:3001');
 
 var socket_connect = function (room) {
-    return io('http://localhost:3001', {
+    return io('keyphrase.herokuapp.com', {
         query: 'r_var='+room
     });
 }

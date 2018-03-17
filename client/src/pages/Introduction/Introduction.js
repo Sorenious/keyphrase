@@ -212,10 +212,6 @@ class Introduction extends Component {
               It is possible to win on the other team's turn if they guess your last picture.<br />
               The game can end early if a field operative touches the location with the assassin. That operative's team loses.
             </p>
-            <h5>Setup for the Next Game</h5>
-            <p>
-              Do other people want a chance to be keymasters? Setup for the second game is easy. Remove the cards covering the pictures and put them back in their stacks. Flip over the 20 picture cards, draw a new key card, and you're ready to go!
-            </p>
 
         <h2>Keeping A Straight Face</h2>
         <p>

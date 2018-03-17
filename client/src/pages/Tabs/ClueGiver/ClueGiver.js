@@ -45,7 +45,7 @@ class ClueGiver extends Component {
       // }
       console.log("Click Click Click", data)
       this.setState({
-        cover: data
+        cover: data.cover, redCount: data.countRed, blueCount: data.countBlue
       })
     })
 
